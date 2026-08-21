@@ -1,166 +1,201 @@
 export default async function handler(req, res) {
-
-    // Monetag Postback is received as GET
-    if (req.method !== "GET") {
-        return res.status(405).json({
-            success: false,
-            error: "Method not allowed"
-        });
-    }
-
     try {
 
-        const {
-            telegram_id,
-            zone_id,
-            sub_zone_id,
-            event_type,
-            reward_event_type,
-            estimated_price,
-            ymid,
-            request_var
-        } = req.query;
+        /*
+         * MONETAG POSTBACK
+         * ----------------
+         * This is the only request that can
+         * trigger the TBC reward.
+         */
+
+        if (req.method === "GET") {
+
+            const {
+                telegram_id,
+                zone_id,
+                sub_zone_id,
+                event_type,
+                reward_event_type,
+                estimated_price,
+                ymid,
+                request_var
+            } = req.query;
 
 
-        // Telegram ID is required
-        if (!telegram_id) {
-            return res.status(400).json({
-                success: false,
-                error: "Missing telegram_id"
-            });
-        }
+            if (!telegram_id) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Missing telegram_id"
+                });
+            }
 
 
-        // Only rewarded/valued events are accepted
-        if (
-            String(reward_event_type || "").toLowerCase()
-            !== "valued"
-        ) {
+            if (!ymid) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Missing ymid"
+                });
+            }
+
+
+            /*
+             * Only valued reward events
+             */
+
+            if (
+                String(reward_event_type || "")
+                    .toLowerCase() !== "valued"
+            ) {
+
+                return res.status(200).json({
+                    success: false,
+                    rewarded: false,
+                    message: "Not a valued reward"
+                });
+
+            }
+
+
+            /*
+             * TBC webhook URL
+             */
+
+            const tbcWebhook =
+                process.env.TBC_WEBHOOK_URL;
+
+
+            if (!tbcWebhook) {
+
+                console.error(
+                    "TBC_WEBHOOK_URL is missing"
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    error: "TBC webhook not configured"
+                });
+
+            }
+
+
+            /*
+             * Send verified reward to TBC
+             */
+
+            const payload = {
+
+                telegram_id:
+                    String(telegram_id),
+
+                zone_id:
+                    String(zone_id || ""),
+
+                sub_zone_id:
+                    String(sub_zone_id || ""),
+
+                event_type:
+                    String(event_type || ""),
+
+                reward_event_type:
+                    String(reward_event_type || ""),
+
+                estimated_price:
+                    String(estimated_price || ""),
+
+                ymid:
+                    String(ymid),
+
+                request_var:
+                    String(request_var || "")
+
+            };
+
+
+            const response =
+                await fetch(
+                    tbcWebhook,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(payload)
+                    }
+                );
+
+
+            const responseText =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                console.error(
+                    "TBC webhook failed:",
+                    response.status,
+                    responseText
+                );
+
+                return res.status(502).json({
+                    success: false,
+                    error: "TBC webhook failed"
+                });
+
+            }
+
+
             return res.status(200).json({
-                success: false,
-                rewarded: false,
-                message: "Event is not valued"
+
+                success: true,
+
+                verified: true,
+
+                rewarded: true,
+
+                telegram_id:
+                    String(telegram_id),
+
+                ymid:
+                    String(ymid)
+
             });
-        }
 
-
-        // Unique Monetag event ID
-        if (!ymid) {
-            return res.status(400).json({
-                success: false,
-                error: "Missing ymid"
-            });
-        }
-
-
-        /*
-         * TBC webhook URL
-         *
-         * IMPORTANT:
-         * Add this in Vercel:
-         *
-         * TBC_WEBHOOK_URL
-         *
-         * Do NOT put the private webhook URL directly
-         * inside this file.
-         */
-
-        const webhookUrl =
-            process.env.TBC_WEBHOOK_URL;
-
-
-        if (!webhookUrl) {
-            console.error(
-                "TBC_WEBHOOK_URL is missing"
-            );
-
-            return res.status(500).json({
-                success: false,
-                error: "TBC webhook is not configured"
-            });
         }
 
 
         /*
-         * Send verified Monetag reward data
-         * to TBC /ad_reward webhook.
+         * Browser request
+         *
+         * DO NOT reward here.
          */
 
-        const payload = {
+        if (req.method === "POST") {
 
-            telegram_id: String(telegram_id),
+            return res.status(200).json({
 
-            zone_id: String(zone_id || ""),
+                success: true,
 
-            sub_zone_id:
-                String(sub_zone_id || ""),
+                verified: false,
 
-            event_type:
-                String(event_type || ""),
+                waiting: true,
 
-            reward_event_type:
-                String(reward_event_type || ""),
+                message:
+                    "Waiting for Monetag postback verification"
 
-            estimated_price:
-                String(estimated_price || ""),
-
-            ymid: String(ymid),
-
-            request_var:
-                String(request_var || "")
-
-        };
-
-
-        const webhookResponse =
-            await fetch(
-                webhookUrl,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify(payload)
-                }
-            );
-
-
-        const webhookText =
-            await webhookResponse.text();
-
-
-        if (!webhookResponse.ok) {
-
-            console.error(
-                "TBC webhook error:",
-                webhookResponse.status,
-                webhookText
-            );
-
-            return res.status(502).json({
-                success: false,
-                error: "TBC webhook failed"
             });
+
         }
 
 
-        return res.status(200).json({
+        return res.status(405).json({
 
-            success: true,
+            success: false,
 
-            rewarded: true,
-
-            message:
-                "Reward postback accepted",
-
-            telegram_id:
-                String(telegram_id),
-
-            ymid:
-                String(ymid)
+            error: "Method not allowed"
 
         });
 
@@ -173,8 +208,11 @@ export default async function handler(req, res) {
         );
 
         return res.status(500).json({
+
             success: false,
+
             error: "Internal server error"
+
         });
 
     }
