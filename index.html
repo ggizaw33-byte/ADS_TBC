@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>TBC ADS</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- Monetag SDK -->
+<script src="https://libtl.com/sdk.js"
+        data-zone="11626066"
+        data-sdk="show_11626066"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.card {
+    width: min(90%, 380px);
+    padding: 30px 22px;
+    text-align: center;
+    background: #1e293b;
+    border-radius: 22px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.35);
+}
+
+.title {
+    font-size: 27px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #94a3b8;
+    margin-bottom: 25px;
+}
+
+.watch-btn {
+    width: 100%;
+    padding: 17px;
+    border: 0;
+    border-radius: 14px;
+    background: #22c55e;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.watch-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.status {
+    min-height: 24px;
+    margin-top: 18px;
+    color: #cbd5e1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="title">🎁 TBC ADS</div>
+
+    <div class="subtitle">
+        Watch a rewarded ad
+    </div>
+
+    <button id="watchBtn"
+            class="watch-btn"
+            onclick="watchAd()">
+        ▶ WATCH AD
+    </button>
+
+    <div id="status" class="status">
+        Ready
+    </div>
+
+</div>
+
+<script>
+
+const tg = window.Telegram?.WebApp;
+
+if (tg) {
+    tg.ready();
+    tg.expand();
+}
+
+function getTelegramUserId() {
+
+    return tg?.initDataUnsafe?.user?.id || null;
+
+}
+
+async function watchAd() {
+
+    const button =
+        document.getElementById("watchBtn");
+
+    const status =
+        document.getElementById("status");
+
+    button.disabled = true;
+    status.textContent = "Loading advertisement...";
+
+    try {
+
+        if (typeof show_11626066 !== "function") {
+            throw new Error("Ad SDK is not ready");
+        }
+
+        await show_11626066();
+
+        /*
+         * The rewarded-ad callback reached this point.
+         *
+         * Do NOT put balance manipulation here.
+         * The backend should verify the reward according
+         * to the ad provider's supported verification flow.
+         */
+
+        status.textContent =
+            "✅ Advertisement completed";
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "❌ Advertisement was not completed";
+
+    } finally {
+
+        button.disabled = false;
+
+    }
+}
+
+</script>
+
+</body>
+</html>
