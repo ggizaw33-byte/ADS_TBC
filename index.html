@@ -5,7 +5,7 @@ content="width=device-width, initial-scale=1.0">
 <meta name="theme-color"
 content="#0f172a">
 
-<title>TBC ADS</title><!-- Telegram Web App --><script src="https://telegram.org/js/telegram-web-app.js"></script><!-- Monetag SDK --><script
+<title>TBC ADS</title><script src="https://telegram.org/js/telegram-web-app.js"></script><script
     src="https://libtl.com/sdk.js"
     data-zone="11626066"
     data-sdk="show_11626066">
@@ -19,25 +19,17 @@ content="#0f172a">
 
 body{
     min-height:100vh;
-
     background:
         linear-gradient(
             145deg,
             #020617,
             #0f172a
         );
-
     color:#ffffff;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family:Arial,Helvetica,sans-serif;
     display:flex;
     justify-content:center;
     align-items:center;
-
     padding:20px;
 }
 
@@ -48,50 +40,24 @@ body{
 
 .card{
     width:100%;
-
-    background:
-        rgba(30,41,59,.96);
-
-    border:
-        1px solid
-        rgba(255,255,255,.06);
-
+    background:rgba(30,41,59,.96);
+    border:1px solid rgba(255,255,255,.06);
     border-radius:25px;
-
     padding:30px 22px;
-
     text-align:center;
-
-    box-shadow:
-        0 25px 70px
-        rgba(0,0,0,.45);
+    box-shadow:0 25px 70px rgba(0,0,0,.45);
 }
 
 .logo{
     width:76px;
     height:76px;
-
-    margin:
-        0 auto 18px;
-
+    margin:0 auto 18px;
     border-radius:22px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
+    background:linear-gradient(135deg,#22c55e,#16a34a);
     display:flex;
     align-items:center;
     justify-content:center;
-
     font-size:38px;
-
-    box-shadow:
-        0 10px 30px
-        rgba(34,197,94,.25);
 }
 
 .title{
@@ -102,26 +68,18 @@ body{
 
 .description{
     color:#94a3b8;
-
     font-size:14px;
     line-height:1.6;
-
     margin-bottom:22px;
 }
 
 .user-box{
     background:#0f172a;
-
     border-radius:14px;
-
     padding:13px;
-
     margin-bottom:18px;
-
     color:#94a3b8;
-
     font-size:13px;
-
     word-break:break-all;
 }
 
@@ -130,124 +88,111 @@ body{
     font-weight:bold;
 }
 
-.watch-button{
+.watch-button,
+.done-button{
     width:100%;
-
     padding:17px 15px;
-
     border:0;
     border-radius:15px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
     color:#ffffff;
-
     font-size:18px;
     font-weight:bold;
-
     cursor:pointer;
-
-    box-shadow:
-        0 10px 25px
-        rgba(34,197,94,.20);
-
-    transition:
-        transform .15s,
-        opacity .15s;
 }
 
-.watch-button:active{
+.watch-button{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    box-shadow:0 10px 25px rgba(34,197,94,.20);
+}
+
+.done-button{
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+    box-shadow:0 10px 25px rgba(59,130,246,.20);
+}
+
+.watch-button:active,
+.done-button:active{
     transform:scale(.97);
 }
 
-.watch-button:disabled{
+.watch-button:disabled,
+.done-button:disabled{
     opacity:.55;
     cursor:not-allowed;
     transform:none;
 }
 
+.done-button{
+    display:none;
+}
+
+.timer{
+    display:none;
+    margin-top:16px;
+    color:#f8fafc;
+    font-size:18px;
+    font-weight:bold;
+}
+
 .status{
     min-height:24px;
-
     margin-top:18px;
-
     color:#cbd5e1;
-
     font-size:14px;
     line-height:1.5;
 }
 
 .footer{
     margin-top:20px;
-
     color:#64748b;
-
     font-size:11px;
 }
 
-</style></head><body><div class="container"><div class="card">
+</style></head><body><div class="container"><div class="card"><div class="logo">
+🎁
+</div><div class="title">
+TBC ADS
+</div><div class="description">
+Watch the advertisement and wait
+until the timer is complete.
+</div><div class="user-box">Telegram ID:
 
-    <div class="logo">
-        🎁
-    </div>
+<span
+id="userId"
+class="user-id">
 
-    <div class="title">
-        TBC ADS
-    </div>
+Loading...
 
-    <div class="description">
-        Watch a rewarded advertisement
-        and complete the required viewing
-        to receive your reward.
-    </div>
+</span></div><button
+id="watchBtn"
+class="watch-button"
+onclick="watchAd()">
 
-    <div class="user-box">
+▶ WATCH ADS
 
-        Telegram ID:
+</button><div
+    id="timer"
+    class="timer">⏳ Please wait:
+<span id="seconds">15</span>s
 
-        <span
-            id="userId"
-            class="user-id">
+</div><button
+id="doneBtn"
+class="done-button"
+onclick="doneAd()">
 
-            Loading...
+✅ DONE
 
-        </span>
+</button><div
+    id="status"
+    class="status">Ready
 
-    </div>
-
-    <button
-        id="watchBtn"
-        class="watch-button"
-        onclick="watchAd()">
-
-        ▶ WATCH ADS
-
-    </button>
-
-    <div
-        id="status"
-        class="status">
-
-        Ready
-
-    </div>
-
-    <div class="footer">
-        Powered by TBC ADS
-    </div>
-
-</div>
-
-</div><script>
+</div><div class="footer">
+Powered by TBC ADS
+</div></div></div><script>
 
 /*
 ==================================================
-TELEGRAM WEB APP
+TELEGRAM
 ==================================================
 */
 
@@ -257,32 +202,28 @@ const tg =
         ? window.Telegram.WebApp
         : null;
 
-
 if (tg) {
-
     tg.ready();
-
     tg.expand();
-
 }
 
 
 /*
 ==================================================
-GET TELEGRAM USER
+USER
 ==================================================
 */
 
-function getTelegramUser() {
+function getTelegramUser(){
 
-    if (!tg) {
+    if(!tg){
         return null;
     }
 
-    if (
+    if(
         !tg.initDataUnsafe ||
         !tg.initDataUnsafe.user
-    ) {
+    ){
         return null;
     }
 
@@ -290,26 +231,20 @@ function getTelegramUser() {
 }
 
 
-/*
-==================================================
-SHOW USER ID
-==================================================
-*/
-
-function updateUserId() {
-
-    const element =
-        document.getElementById("userId");
+function updateUserId(){
 
     const user =
         getTelegramUser();
 
-    if (user && user.id) {
+    const element =
+        document.getElementById("userId");
+
+    if(user && user.id){
 
         element.textContent =
             String(user.id);
 
-    } else {
+    }else{
 
         element.textContent =
             "Not available";
@@ -323,11 +258,11 @@ updateUserId();
 
 /*
 ==================================================
-STATUS
+UI
 ==================================================
 */
 
-function setStatus(text) {
+function setStatus(text){
 
     document.getElementById(
         "status"
@@ -336,13 +271,7 @@ function setStatus(text) {
 }
 
 
-/*
-==================================================
-BUTTON
-==================================================
-*/
-
-function setButtonDisabled(value) {
+function setWatchDisabled(value){
 
     document.getElementById(
         "watchBtn"
@@ -351,38 +280,55 @@ function setButtonDisabled(value) {
 }
 
 
+function setDoneVisible(value){
+
+    document.getElementById(
+        "doneBtn"
+    ).style.display =
+        value ? "block" : "none";
+
+}
+
+
+function setTimerVisible(value){
+
+    document.getElementById(
+        "timer"
+    ).style.display =
+        value ? "block" : "none";
+
+}
+
+
+/*
+==================================================
+SESSION DATA
+==================================================
+*/
+
+let adStartedAt = 0;
+
+let timerInterval = null;
+
+let adYmid = null;
+
+
 /*
 ==================================================
 CREATE UNIQUE YMID
 ==================================================
-
-Every ad view gets a new YMID.
-
-Example:
-
-7712522579_1755820000000_ab12cd34
-
-This value will be sent to Monetag
-and should come back in the postback.
-==================================================
 */
 
-function createYmid(userId) {
-
-    const time =
-        Date.now();
-
-    const random =
-        Math.random()
-            .toString(36)
-            .substring(2, 10);
+function createYmid(userId){
 
     return (
         String(userId) +
         "_" +
-        String(time) +
+        Date.now() +
         "_" +
-        random
+        Math.random()
+            .toString(36)
+            .substring(2,10)
     );
 
 }
@@ -390,165 +336,16 @@ function createYmid(userId) {
 
 /*
 ==================================================
-SEND BROWSER EVENT TO VERCEL
-==================================================
-
-IMPORTANT:
-
-This request DOES NOT give +0.2.
-
-The actual reward comes from
-Monetag Server-Side Postback.
+WATCH AD
 ==================================================
 */
 
-async function notifyVercel(ymid) {
+async function watchAd(){
 
     const user =
         getTelegramUser();
 
-    if (!user) {
-
-        setStatus(
-            "❌ Telegram user not found"
-        );
-
-        return false;
-
-    }
-
-    if (!tg || !tg.initData) {
-
-        setStatus(
-            "❌ Telegram verification data missing"
-        );
-
-        return false;
-
-    }
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/reward",
-                {
-
-                    method:"POST",
-
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:JSON.stringify({
-
-                        telegram_id:
-                            String(user.id),
-
-                        ymid:
-                            String(ymid),
-
-                        init_data:
-                            tg.initData,
-
-                        reward_event:
-                            "ad_completed"
-
-                    })
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        console.log(
-            "Vercel response:",
-            result
-        );
-
-
-        /*
-        ==========================================
-        POST REQUEST ONLY WAITS FOR POSTBACK
-        ==========================================
-        */
-
-        if (
-            result &&
-            result.waiting
-        ) {
-
-            setStatus(
-                "⏳ Ad completed. Waiting for verification..."
-            );
-
-            return true;
-
-        }
-
-
-        if (
-            result &&
-            result.verified
-        ) {
-
-            setStatus(
-                "✅ Reward verified!"
-            );
-
-            return true;
-
-        }
-
-
-        setStatus(
-            "⏳ Waiting for ad verification..."
-        );
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "Vercel request error:",
-            error
-        );
-
-        setStatus(
-            "⏳ Ad completed. Waiting for verification..."
-        );
-
-        return false;
-
-    }
-
-}
-
-
-/*
-==================================================
-MONETAG REWARDED INTERSTITIAL
-==================================================
-*/
-
-async function watchAd() {
-
-    const user =
-        getTelegramUser();
-
-
-    /*
-    ==========================================
-    TELEGRAM CHECK
-    ==========================================
-    */
-
-    if (!user) {
+    if(!user){
 
         setStatus(
             "❌ Please open this app from Telegram."
@@ -559,48 +356,30 @@ async function watchAd() {
     }
 
 
-    /*
-    ==========================================
-    CREATE UNIQUE YMID
-    ==========================================
-    */
+    setWatchDisabled(true);
 
-    const ymid =
-        createYmid(user.id);
+    setDoneVisible(false);
 
-
-    console.log(
-        "Generated YMID:",
-        ymid
-    );
-
-
-    /*
-    ==========================================
-    DISABLE BUTTON
-    ==========================================
-    */
-
-    setButtonDisabled(true);
+    setTimerVisible(false);
 
     setStatus(
         "⏳ Loading advertisement..."
     );
 
 
-    try {
+    adYmid =
+        createYmid(user.id);
+
+    adStartedAt =
+        Date.now();
 
 
-        /*
-        ==========================================
-        CHECK MONETAG SDK
-        ==========================================
-        */
+    try{
 
-        if (
+        if(
             typeof show_11626066 !==
             "function"
-        ) {
+        ){
 
             throw new Error(
                 "Monetag SDK is not ready"
@@ -611,60 +390,38 @@ async function watchAd() {
 
         /*
         ==========================================
-        SHOW REWARDED INTERSTITIAL
-
-        IMPORTANT:
-        YMID IS NOW PASSED TO MONETAG
+        MONETAG AD
         ==========================================
         */
 
         await show_11626066({
 
-            type:
-                "end",
+            type:"end",
 
-            ymid:
-                ymid,
+            ymid:adYmid,
 
-            requestVar:
-                "watch_ads"
+            requestVar:"watch_ads"
 
         });
 
 
         /*
         ==========================================
-        FRONTEND CALLBACK
-
-        This means the SDK completed its
-        confirmed ad flow.
-
-        Still NO +0.2 here.
-        Reward comes from server postback.
+        START 15 SECOND TIMER
         ==========================================
         */
 
-        setStatus(
-            "✅ Ad completed. Verifying reward..."
-        );
+        startTimer();
 
 
-        /*
-        ==========================================
-        NOTIFY VERCEL
-        ==========================================
-        */
-
-        await notifyVercel(ymid);
-
-
-    } catch (error) {
+    }catch(error){
 
         console.error(
             "Monetag error:",
             error
         );
 
+        resetAd();
 
         setStatus(
             "❌ Ad not completed. Please watch again."
@@ -672,14 +429,321 @@ async function watchAd() {
 
     }
 
+}
+
+
+/*
+==================================================
+15 SECOND TIMER
+==================================================
+*/
+
+function startTimer(){
+
+    clearInterval(timerInterval);
+
+    setTimerVisible(true);
+
+    setDoneVisible(false);
+
+    setStatus(
+        "⏳ Please wait until 15 seconds..."
+    );
+
+
+    function update(){
+
+        const elapsed =
+            (Date.now() - adStartedAt) / 1000;
+
+        const remaining =
+            Math.max(
+                0,
+                Math.ceil(15 - elapsed)
+            );
+
+
+        document.getElementById(
+            "seconds"
+        ).textContent =
+            remaining;
+
+
+        if(remaining <= 0){
+
+            clearInterval(
+                timerInterval
+            );
+
+            document.getElementById(
+                "seconds"
+            ).textContent =
+                "0";
+
+            setDoneVisible(true);
+
+            setStatus(
+                "✅ You can press DONE now."
+            );
+
+        }
+
+    }
+
+
+    update();
+
+    timerInterval =
+        setInterval(
+            update,
+            250
+        );
+
+}
+
+
+/*
+==================================================
+DONE
+==================================================
+*/
+
+async function doneAd(){
+
+    const user =
+        getTelegramUser();
+
+    if(!user){
+
+        setStatus(
+            "❌ Telegram user not found."
+        );
+
+        return;
+
+    }
+
+
+    const elapsed =
+        (Date.now() - adStartedAt) / 1000;
+
 
     /*
     ==========================================
-    ENABLE BUTTON
+    LESS THAN 15 SECONDS
     ==========================================
     */
 
-    setButtonDisabled(false);
+    if(elapsed < 15){
+
+        setStatus(
+            "❌ You have not finished the full ad."
+        );
+
+        /*
+        Send message to bot.
+        */
+
+        try{
+
+            if(tg && tg.initData){
+
+                await fetch(
+                    "/api/ad-status",
+                    {
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:JSON.stringify({
+
+                            telegram_id:
+                                String(user.id),
+
+                            status:
+                                "not_finished",
+
+                            elapsed:
+                                elapsed
+
+                        })
+                    }
+                );
+
+            }
+
+        }catch(e){
+
+            console.log(e);
+
+        }
+
+        resetAd();
+
+        return;
+
+    }
+
+
+    /*
+    ==========================================
+    MORE THAN 25 SECONDS
+    ==========================================
+    */
+
+    if(elapsed > 25){
+
+        setStatus(
+            "❌ Time expired. Reward not counted."
+        );
+
+        try{
+
+            if(tg && tg.initData){
+
+                await fetch(
+                    "/api/ad-status",
+                    {
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:JSON.stringify({
+
+                            telegram_id:
+                                String(user.id),
+
+                            status:
+                                "expired",
+
+                            elapsed:
+                                elapsed
+
+                        })
+                    }
+                );
+
+            }
+
+        }catch(e){
+
+            console.log(e);
+
+        }
+
+        resetAd();
+
+        return;
+
+    }
+
+
+    /*
+    ==========================================
+    15–25 SECONDS
+    ==========================================
+    */
+
+    setDoneVisible(false);
+
+    setTimerVisible(false);
+
+    setStatus(
+        "⏳ Ad completed. Waiting for verification..."
+    );
+
+
+    /*
+    IMPORTANT:
+
+    This does NOT directly add money.
+
+    Monetag valued postback must still
+    reach Vercel/TBC.
+    */
+
+    try{
+
+        await fetch(
+            "/api/reward",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:JSON.stringify({
+
+                    telegram_id:
+                        String(user.id),
+
+                    ymid:
+                        String(adYmid || ""),
+
+                    init_data:
+                        tg
+                            ? tg.initData
+                            : "",
+
+                    reward_event:
+                        "ad_completed",
+
+                    elapsed:
+                        elapsed
+
+                })
+            }
+        );
+
+    }catch(e){
+
+        console.log(
+            "Verification request failed:",
+            e
+        );
+
+    }
+
+    setStatus(
+        "⏳ Ad completed. Waiting for verification..."
+    );
+
+    resetAd();
+
+}
+
+
+/*
+==================================================
+RESET
+==================================================
+*/
+
+function resetAd(){
+
+    clearInterval(
+        timerInterval
+    );
+
+    timerInterval = null;
+
+    adStartedAt = 0;
+
+    adYmid = null;
+
+    setTimerVisible(false);
+
+    setDoneVisible(false);
+
+    setWatchDisabled(false);
 
 }
 
@@ -690,13 +754,13 @@ TELEGRAM THEME
 ==================================================
 */
 
-if (tg) {
+if(tg){
 
-    try {
+    try{
 
         tg.onEvent(
             "themeChanged",
-            function() {
+            function(){
 
                 console.log(
                     "Telegram theme changed"
@@ -705,7 +769,7 @@ if (tg) {
             }
         );
 
-    } catch (e) {
+    }catch(e){
 
         console.log(
             "Theme event unavailable"
