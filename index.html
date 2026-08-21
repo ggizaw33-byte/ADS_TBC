@@ -1,32 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <meta name="theme-color"
-      content="#0f172a">
+content="#0f172a">
 
-<title>TBC ADS</title>
-
-
-<!-- Telegram Web App -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-
-<!-- Monetag SDK -->
-<script
+<title>TBC ADS</title><!-- Telegram Web App --><script src="https://telegram.org/js/telegram-web-app.js"></script><!-- Monetag SDK --><script
     src="https://libtl.com/sdk.js"
     data-zone="11626066"
     data-sdk="show_11626066">
-</script>
-
-
-<style>
+</script><style>
 
 *{
     box-sizing:border-box;
@@ -35,7 +18,6 @@
 }
 
 body{
-
     min-height:100vh;
 
     background:
@@ -53,27 +35,18 @@ body{
         sans-serif;
 
     display:flex;
-
     justify-content:center;
-
     align-items:center;
 
     padding:20px;
-
 }
-
 
 .container{
-
     width:100%;
-
     max-width:390px;
-
 }
 
-
 .card{
-
     width:100%;
 
     background:
@@ -92,14 +65,10 @@ body{
     box-shadow:
         0 25px 70px
         rgba(0,0,0,.45);
-
 }
 
-
 .logo{
-
     width:76px;
-
     height:76px;
 
     margin:
@@ -115,9 +84,7 @@ body{
         );
 
     display:flex;
-
     align-items:center;
-
     justify-content:center;
 
     font-size:38px;
@@ -125,36 +92,24 @@ body{
     box-shadow:
         0 10px 30px
         rgba(34,197,94,.25);
-
 }
-
 
 .title{
-
     font-size:27px;
-
     font-weight:700;
-
     margin-bottom:8px;
-
 }
 
-
 .description{
-
     color:#94a3b8;
 
     font-size:14px;
-
     line-height:1.6;
 
     margin-bottom:22px;
-
 }
 
-
 .user-box{
-
     background:#0f172a;
 
     border-radius:14px;
@@ -168,27 +123,19 @@ body{
     font-size:13px;
 
     word-break:break-all;
-
 }
-
 
 .user-id{
-
     color:#ffffff;
-
     font-weight:bold;
-
 }
 
-
 .watch-button{
-
     width:100%;
 
     padding:17px 15px;
 
     border:0;
-
     border-radius:15px;
 
     background:
@@ -201,7 +148,6 @@ body{
     color:#ffffff;
 
     font-size:18px;
-
     font-weight:bold;
 
     cursor:pointer;
@@ -213,30 +159,19 @@ body{
     transition:
         transform .15s,
         opacity .15s;
-
 }
-
 
 .watch-button:active{
-
     transform:scale(.97);
-
 }
-
 
 .watch-button:disabled{
-
     opacity:.55;
-
     cursor:not-allowed;
-
     transform:none;
-
 }
 
-
 .status{
-
     min-height:24px;
 
     margin-top:18px;
@@ -244,111 +179,75 @@ body{
     color:#cbd5e1;
 
     font-size:14px;
-
     line-height:1.5;
-
 }
 
-
 .footer{
-
     margin-top:20px;
 
     color:#64748b;
 
     font-size:11px;
-
 }
 
+</style></head><body><div class="container"><div class="card">
 
-</style>
+    <div class="logo">
+        🎁
+    </div>
 
-</head>
+    <div class="title">
+        TBC ADS
+    </div>
 
+    <div class="description">
+        Watch a rewarded advertisement
+        and complete the required viewing
+        to receive your reward.
+    </div>
 
-<body>
+    <div class="user-box">
 
+        Telegram ID:
 
-<div class="container">
+        <span
+            id="userId"
+            class="user-id">
 
-    <div class="card">
+            Loading...
 
+        </span>
 
-        <div class="logo">
+    </div>
 
-            🎁
+    <button
+        id="watchBtn"
+        class="watch-button"
+        onclick="watchAd()">
 
-        </div>
+        ▶ WATCH ADS
 
+    </button>
 
-        <div class="title">
+    <div
+        id="status"
+        class="status">
 
-            TBC ADS
+        Ready
 
-        </div>
+    </div>
 
-
-        <div class="description">
-
-            Watch a rewarded advertisement
-            and complete the required viewing
-            to receive your reward.
-
-        </div>
-
-
-        <div class="user-box">
-
-            Telegram ID:
-
-            <span
-                id="userId"
-                class="user-id">
-
-                Loading...
-
-            </span>
-
-        </div>
-
-
-        <button
-            id="watchBtn"
-            class="watch-button"
-            onclick="watchAd()">
-
-            ▶ WATCH ADS
-
-        </button>
-
-
-        <div
-            id="status"
-            class="status">
-
-            Ready
-
-        </div>
-
-
-        <div class="footer">
-
-            Powered by TBC ADS
-
-        </div>
-
-
+    <div class="footer">
+        Powered by TBC ADS
     </div>
 
 </div>
 
-
-
-<script>
+</div><script>
 
 /*
 ==================================================
-TELEGRAM MINI APP
+TELEGRAM WEB APP
 ==================================================
 */
 
@@ -368,7 +267,6 @@ if (tg) {
 }
 
 
-
 /*
 ==================================================
 GET TELEGRAM USER
@@ -378,26 +276,18 @@ GET TELEGRAM USER
 function getTelegramUser() {
 
     if (!tg) {
-
         return null;
-
     }
-
 
     if (
         !tg.initDataUnsafe ||
         !tg.initDataUnsafe.user
     ) {
-
         return null;
-
     }
 
-
     return tg.initDataUnsafe.user;
-
 }
-
 
 
 /*
@@ -411,10 +301,8 @@ function updateUserId() {
     const element =
         document.getElementById("userId");
 
-
     const user =
         getTelegramUser();
-
 
     if (user && user.id) {
 
@@ -430,9 +318,7 @@ function updateUserId() {
 
 }
 
-
 updateUserId();
-
 
 
 /*
@@ -450,7 +336,6 @@ function setStatus(text) {
 }
 
 
-
 /*
 ==================================================
 BUTTON
@@ -466,6 +351,42 @@ function setButtonDisabled(value) {
 }
 
 
+/*
+==================================================
+CREATE UNIQUE YMID
+==================================================
+
+Every ad view gets a new YMID.
+
+Example:
+
+7712522579_1755820000000_ab12cd34
+
+This value will be sent to Monetag
+and should come back in the postback.
+==================================================
+*/
+
+function createYmid(userId) {
+
+    const time =
+        Date.now();
+
+    const random =
+        Math.random()
+            .toString(36)
+            .substring(2, 10);
+
+    return (
+        String(userId) +
+        "_" +
+        String(time) +
+        "_" +
+        random
+    );
+
+}
+
 
 /*
 ==================================================
@@ -474,22 +395,17 @@ SEND BROWSER EVENT TO VERCEL
 
 IMPORTANT:
 
-This request DOES NOT give the user
-the +0.2 reward.
+This request DOES NOT give +0.2.
 
-It only tells Vercel that the
-browser-side ad flow completed.
-
-The actual reward must come from
-Monetag Postback.
+The actual reward comes from
+Monetag Server-Side Postback.
 ==================================================
 */
 
-async function notifyVercel() {
+async function notifyVercel(ymid) {
 
     const user =
         getTelegramUser();
-
 
     if (!user) {
 
@@ -501,7 +417,6 @@ async function notifyVercel() {
 
     }
 
-
     if (!tg || !tg.initData) {
 
         setStatus(
@@ -511,7 +426,6 @@ async function notifyVercel() {
         return false;
 
     }
-
 
     try {
 
@@ -529,8 +443,11 @@ async function notifyVercel() {
 
                     body:JSON.stringify({
 
-                        user_id:
+                        telegram_id:
                             String(user.id),
+
+                        ymid:
+                            String(ymid),
 
                         init_data:
                             tg.initData,
@@ -556,7 +473,7 @@ async function notifyVercel() {
 
         /*
         ==========================================
-        POST REQUEST NEVER REWARDS THE USER
+        POST REQUEST ONLY WAITS FOR POSTBACK
         ==========================================
         */
 
@@ -602,23 +519,15 @@ async function notifyVercel() {
             error
         );
 
-
         setStatus(
             "⏳ Ad completed. Waiting for verification..."
         );
-
-
-        /*
-        Do NOT show reward failure here.
-        Monetag Postback may arrive separately.
-        */
 
         return false;
 
     }
 
 }
-
 
 
 /*
@@ -628,7 +537,6 @@ MONETAG REWARDED INTERSTITIAL
 */
 
 async function watchAd() {
-
 
     const user =
         getTelegramUser();
@@ -653,12 +561,27 @@ async function watchAd() {
 
     /*
     ==========================================
+    CREATE UNIQUE YMID
+    ==========================================
+    */
+
+    const ymid =
+        createYmid(user.id);
+
+
+    console.log(
+        "Generated YMID:",
+        ymid
+    );
+
+
+    /*
+    ==========================================
     DISABLE BUTTON
     ==========================================
     */
 
     setButtonDisabled(true);
-
 
     setStatus(
         "⏳ Loading advertisement..."
@@ -689,20 +612,35 @@ async function watchAd() {
         /*
         ==========================================
         SHOW REWARDED INTERSTITIAL
+
+        IMPORTANT:
+        YMID IS NOW PASSED TO MONETAG
         ==========================================
         */
 
-        await show_11626066();
+        await show_11626066({
+
+            type:
+                "end",
+
+            ymid:
+                ymid,
+
+            requestVar:
+                "watch_ads"
+
+        });
 
 
         /*
         ==========================================
-        AD COMPLETED
+        FRONTEND CALLBACK
 
-        IMPORTANT:
-        No +0.2 here.
+        This means the SDK completed its
+        confirmed ad flow.
 
-        We only notify Vercel.
+        Still NO +0.2 here.
+        Reward comes from server postback.
         ==========================================
         */
 
@@ -711,23 +649,22 @@ async function watchAd() {
         );
 
 
-        await notifyVercel();
+        /*
+        ==========================================
+        NOTIFY VERCEL
+        ==========================================
+        */
+
+        await notifyVercel(ymid);
 
 
     } catch (error) {
-
 
         console.error(
             "Monetag error:",
             error
         );
 
-
-        /*
-        ==========================================
-        AD WAS NOT COMPLETED
-        ==========================================
-        */
 
         setStatus(
             "❌ Ad not completed. Please watch again."
@@ -738,14 +675,13 @@ async function watchAd() {
 
     /*
     ==========================================
-    ENABLE BUTTON AGAIN
+    ENABLE BUTTON
     ==========================================
     */
 
     setButtonDisabled(false);
 
 }
-
 
 
 /*
@@ -779,9 +715,4 @@ if (tg) {
 
 }
 
-</script>
-
-
-</body>
-
-</html>
+</script></body></html>
