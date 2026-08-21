@@ -2,11 +2,27 @@ export default async function handler(req, res) {
     try {
 
         /*
-         * MONETAG POSTBACK
-         * ----------------
-         * This is the only request that can
-         * trigger the TBC reward.
+         * ==========================================
+         * MONETAG → VERCEL → TBC REWARD API
+         * ==========================================
+         *
+         * Monetag sends the verified postback to:
+         *
+         * /api/reward?telegram_id=...
+         *
+         * Vercel then sends the verified data to
+         * the TBC webhook stored in:
+         *
+         * TBC_WEBHOOK_URL
+         *
+         * The TBC /ad_reward command is responsible
+         * for adding +0.2 to the user's balance.
          */
+
+
+        // ==========================================
+        // 1. MONETAG POSTBACK MUST BE GET
+        // ==========================================
 
         if (req.method === "GET") {
 
@@ -22,43 +38,74 @@ export default async function handler(req, res) {
             } = req.query;
 
 
+            // ==========================================
+            // 2. CHECK TELEGRAM USER ID
+            // ==========================================
+
             if (!telegram_id) {
+
                 return res.status(400).json({
                     success: false,
+                    verified: false,
+                    rewarded: false,
                     error: "Missing telegram_id"
                 });
+
             }
 
+
+            // ==========================================
+            // 3. CHECK EVENT ID
+            // ==========================================
 
             if (!ymid) {
+
                 return res.status(400).json({
                     success: false,
+                    verified: false,
+                    rewarded: false,
                     error: "Missing ymid"
                 });
+
             }
+
+
+            // ==========================================
+            // 4. CHECK REWARD EVENT
+            // ==========================================
+
+            const rewardType =
+                String(reward_event_type || "")
+                    .toLowerCase()
+                    .trim();
 
 
             /*
-             * Only valued reward events
+             * Monetag rewarded events can be returned
+             * as "valued" or "yes" depending on setup.
              */
 
             if (
-                String(reward_event_type || "")
-                    .toLowerCase() !== "valued"
+                rewardType !== "valued" &&
+                rewardType !== "yes"
             ) {
 
                 return res.status(200).json({
-                    success: false,
+                    success: true,
+                    verified: false,
                     rewarded: false,
-                    message: "Not a valued reward"
+                    message: "Ad was not rewarded",
+                    telegram_id: String(telegram_id),
+                    ymid: String(ymid),
+                    reward_event_type: rewardType
                 });
 
             }
 
 
-            /*
-             * TBC webhook URL
-             */
+            // ==========================================
+            // 5. GET TBC WEBHOOK URL
+            // ==========================================
 
             const tbcWebhook =
                 process.env.TBC_WEBHOOK_URL;
@@ -67,20 +114,22 @@ export default async function handler(req, res) {
             if (!tbcWebhook) {
 
                 console.error(
-                    "TBC_WEBHOOK_URL is missing"
+                    "TBC_WEBHOOK_URL environment variable is missing"
                 );
 
                 return res.status(500).json({
                     success: false,
-                    error: "TBC webhook not configured"
+                    verified: true,
+                    rewarded: false,
+                    error: "TBC_WEBHOOK_URL is missing"
                 });
 
             }
 
 
-            /*
-             * Send verified reward to TBC
-             */
+            // ==========================================
+            // 6. CREATE DATA FOR TBC
+            // ==========================================
 
             const payload = {
 
@@ -111,42 +160,87 @@ export default async function handler(req, res) {
             };
 
 
-            const response =
-                await fetch(
-                    tbcWebhook,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(payload)
-                    }
-                );
+            console.log(
+                "MONETAG REWARD RECEIVED:",
+                payload
+            );
 
 
-            const responseText =
-                await response.text();
+            // ==========================================
+            // 7. SEND VERIFIED DATA TO TBC
+            // ==========================================
+
+            const tbcResponse = await fetch(
+                tbcWebhook,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+
+                    body: JSON.stringify(payload)
+                }
+            );
 
 
-            if (!response.ok) {
+            // ==========================================
+            // 8. READ TBC RESPONSE
+            // ==========================================
 
-                console.error(
-                    "TBC webhook failed:",
-                    response.status,
-                    responseText
-                );
+            const tbcText =
+                await tbcResponse.text();
+
+
+            console.log(
+                "TBC RESPONSE STATUS:",
+                tbcResponse.status
+            );
+
+            console.log(
+                "TBC RESPONSE:",
+                tbcText
+            );
+
+
+            // ==========================================
+            // 9. TBC ERROR
+            // ==========================================
+
+            if (!tbcResponse.ok) {
 
                 return res.status(502).json({
+
                     success: false,
-                    error: "TBC webhook failed"
+
+                    verified: true,
+
+                    rewarded: false,
+
+                    error:
+                        "TBC webhook failed",
+
+                    tbc_status:
+                        tbcResponse.status,
+
+                    tbc_response:
+                        tbcText,
+
+                    telegram_id:
+                        String(telegram_id),
+
+                    ymid:
+                        String(ymid)
+
                 });
 
             }
 
+
+            // ==========================================
+            // 10. SUCCESS
+            // ==========================================
 
             return res.status(200).json({
 
@@ -156,30 +250,49 @@ export default async function handler(req, res) {
 
                 rewarded: true,
 
+                message:
+                    "Reward successfully sent to TBC",
+
                 telegram_id:
                     String(telegram_id),
 
                 ymid:
-                    String(ymid)
+                    String(ymid),
+
+                tbc_status:
+                    tbcResponse.status,
+
+                tbc_response:
+                    tbcText
 
             });
 
         }
 
 
-        /*
-         * Browser request
-         *
-         * DO NOT reward here.
-         */
+        // ==========================================
+        // 11. BROWSER / MINI APP REQUEST
+        // ==========================================
 
         if (req.method === "POST") {
+
+            /*
+             * IMPORTANT:
+             *
+             * Browser/Mini App requests NEVER receive
+             * balance credit directly.
+             *
+             * Balance is credited only after Monetag
+             * sends the verified postback.
+             */
 
             return res.status(200).json({
 
                 success: true,
 
                 verified: false,
+
+                rewarded: false,
 
                 waiting: true,
 
@@ -191,9 +304,17 @@ export default async function handler(req, res) {
         }
 
 
+        // ==========================================
+        // 12. OTHER HTTP METHODS
+        // ==========================================
+
         return res.status(405).json({
 
             success: false,
+
+            verified: false,
+
+            rewarded: false,
 
             error: "Method not allowed"
 
@@ -202,8 +323,12 @@ export default async function handler(req, res) {
 
     } catch (error) {
 
+        // ==========================================
+        // 13. SERVER ERROR
+        // ==========================================
+
         console.error(
-            "Reward API error:",
+            "REWARD API ERROR:",
             error
         );
 
@@ -211,7 +336,15 @@ export default async function handler(req, res) {
 
             success: false,
 
-            error: "Internal server error"
+            verified: false,
+
+            rewarded: false,
+
+            error:
+                "Internal server error",
+
+            details:
+                String(error)
 
         });
 
