@@ -1,159 +1,524 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
 
+<meta name="theme-color"
+      content="#0f172a">
+
 <title>TBC ADS</title>
 
+<!-- Telegram Mini App -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <!-- Monetag SDK -->
 <script src="https://libtl.com/sdk.js"
         data-zone="11626066"
-        data-sdk="show_11626066"></script>
+        data-sdk="show_11626066">
+</script>
 
 <style>
-* {
-    box-sizing: border-box;
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #0f172a;
-    color: white;
-    font-family: Arial, sans-serif;
+body{
+    min-height:100vh;
+    background:#0f172a;
+    color:#ffffff;
+    font-family:Arial,sans-serif;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:20px;
 }
 
-.card {
-    width: min(90%, 380px);
-    padding: 30px 22px;
-    text-align: center;
-    background: #1e293b;
-    border-radius: 22px;
-    box-shadow: 0 15px 40px rgba(0,0,0,.35);
+.container{
+    width:100%;
+    max-width:390px;
 }
 
-.title {
-    font-size: 27px;
-    font-weight: 700;
-    margin-bottom: 10px;
+.card{
+    background:#1e293b;
+    border-radius:24px;
+    padding:30px 22px;
+
+    text-align:center;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.35);
 }
 
-.subtitle {
-    color: #94a3b8;
-    margin-bottom: 25px;
+.logo{
+    width:75px;
+    height:75px;
+
+    margin:0 auto 18px;
+
+    border-radius:20px;
+
+    background:#22c55e;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:38px;
 }
 
-.watch-btn {
-    width: 100%;
-    padding: 17px;
-    border: 0;
-    border-radius: 14px;
-    background: #22c55e;
-    color: white;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
+h1{
+    font-size:26px;
+    margin-bottom:8px;
 }
 
-.watch-btn:disabled {
-    opacity: .5;
-    cursor: not-allowed;
+.description{
+    color:#94a3b8;
+    font-size:15px;
+    line-height:1.5;
+
+    margin-bottom:25px;
 }
 
-.status {
-    min-height: 24px;
-    margin-top: 18px;
-    color: #cbd5e1;
+.user-box{
+    background:#0f172a;
+    border-radius:14px;
+
+    padding:12px;
+
+    margin-bottom:18px;
+
+    font-size:14px;
+    color:#cbd5e1;
 }
+
+.watch-button{
+    width:100%;
+
+    padding:17px;
+
+    border:none;
+    border-radius:14px;
+
+    background:#22c55e;
+    color:white;
+
+    font-size:18px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.watch-button:active{
+    transform:scale(.97);
+}
+
+.watch-button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.status{
+    min-height:25px;
+
+    margin-top:18px;
+
+    color:#cbd5e1;
+
+    font-size:14px;
+}
+
+.footer{
+    margin-top:18px;
+
+    color:#64748b;
+
+    font-size:12px;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
 
-    <div class="title">🎁 TBC ADS</div>
+    <div class="card">
 
-    <div class="subtitle">
-        Watch a rewarded ad
-    </div>
+        <div class="logo">
+            🎁
+        </div>
 
-    <button id="watchBtn"
-            class="watch-btn"
+        <h1>
+            TBC ADS
+        </h1>
+
+        <div class="description">
+            Watch a rewarded advertisement
+            and complete the required action.
+        </div>
+
+        <div class="user-box">
+            User ID:
+            <span id="userId">
+                Loading...
+            </span>
+        </div>
+
+        <button
+            id="watchBtn"
+            class="watch-button"
             onclick="watchAd()">
-        ▶ WATCH AD
-    </button>
 
-    <div id="status" class="status">
-        Ready
+            ▶ WATCH AD
+
+        </button>
+
+        <div
+            id="status"
+            class="status">
+
+            Ready
+
+        </div>
+
+        <div class="footer">
+            Powered by TBC ADS
+        </div>
+
     </div>
 
 </div>
 
+
 <script>
+
+/*
+========================================
+Telegram Mini App
+========================================
+*/
 
 const tg = window.Telegram?.WebApp;
 
-if (tg) {
+if(tg){
+
     tg.ready();
+
     tg.expand();
-}
-
-function getTelegramUserId() {
-
-    return tg?.initDataUnsafe?.user?.id || null;
 
 }
 
-async function watchAd() {
 
-    const button =
-        document.getElementById("watchBtn");
+/*
+========================================
+Get Telegram User
+========================================
+*/
 
-    const status =
-        document.getElementById("status");
+function getTelegramUser(){
 
-    button.disabled = true;
-    status.textContent = "Loading advertisement...";
+    if(!tg){
 
-    try {
+        return null;
 
-        if (typeof show_11626066 !== "function") {
-            throw new Error("Ad SDK is not ready");
+    }
+
+    return tg.initDataUnsafe?.user || null;
+
+}
+
+
+function getUserId(){
+
+    const user = getTelegramUser();
+
+    if(!user){
+
+        return null;
+
+    }
+
+    return String(user.id);
+
+}
+
+
+/*
+========================================
+Display User ID
+========================================
+*/
+
+const userIdElement =
+    document.getElementById("userId");
+
+const currentUserId =
+    getUserId();
+
+
+if(currentUserId){
+
+    userIdElement.textContent =
+        currentUserId;
+
+}else{
+
+    userIdElement.textContent =
+        "Not available";
+
+}
+
+
+/*
+========================================
+Status Helper
+========================================
+*/
+
+function setStatus(text){
+
+    document.getElementById(
+        "status"
+    ).textContent = text;
+
+}
+
+
+/*
+========================================
+Button State
+========================================
+*/
+
+function setButtonDisabled(value){
+
+    document.getElementById(
+        "watchBtn"
+    ).disabled = value;
+
+}
+
+
+/*
+========================================
+Send Reward Event to Vercel
+========================================
+*/
+
+async function sendRewardEvent(){
+
+    const user =
+        getTelegramUser();
+
+    if(!user){
+
+        setStatus(
+            "❌ Telegram user not found"
+        );
+
+        return;
+
+    }
+
+
+    if(!tg.initData){
+
+        setStatus(
+            "❌ Telegram verification data missing"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                "/api/reward",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        user_id:String(user.id),
+
+                        init_data:
+                            tg.initData,
+
+                        reward_event:
+                            "ad_completed"
+
+                    })
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "Reward API:",
+            result
+        );
+
+
+        if(result.success){
+
+            setStatus(
+                "✅ Reward request sent"
+            );
+
+        }else{
+
+            setStatus(
+                "⚠️ Reward not verified"
+            );
+
         }
+
+    }catch(error){
+
+        console.error(
+            "Reward API error:",
+            error
+        );
+
+        setStatus(
+            "❌ Connection error"
+        );
+
+    }
+
+}
+
+
+/*
+========================================
+Rewarded Interstitial
+========================================
+*/
+
+async function watchAd(){
+
+    const user =
+        getTelegramUser();
+
+
+    if(!user){
+
+        setStatus(
+            "❌ Open this app from Telegram"
+        );
+
+        return;
+
+    }
+
+
+    setButtonDisabled(true);
+
+    setStatus(
+        "Loading advertisement..."
+    );
+
+
+    try{
+
+        /*
+        Check Monetag SDK
+        */
+
+        if(
+            typeof show_11626066 !==
+            "function"
+        ){
+
+            throw new Error(
+                "Monetag SDK not ready"
+            );
+
+        }
+
+
+        /*
+        Show Rewarded Interstitial
+        */
 
         await show_11626066();
 
+
         /*
-         * The rewarded-ad callback reached this point.
-         *
-         * Do NOT put balance manipulation here.
-         * The backend should verify the reward according
-         * to the ad provider's supported verification flow.
-         */
+        The SDK promise completed.
+        Send the event to backend.
+        */
 
-        status.textContent =
-            "✅ Advertisement completed";
+        setStatus(
+            "✅ Advertisement completed"
+        );
 
-    } catch (error) {
 
-        console.error(error);
+        await sendRewardEvent();
 
-        status.textContent =
-            "❌ Advertisement was not completed";
 
-    } finally {
+    }catch(error){
 
-        button.disabled = false;
+        console.error(
+            "Advertisement error:",
+            error
+        );
+
+
+        setStatus(
+            "❌ Advertisement not completed. Watch again."
+        );
 
     }
+
+
+    setButtonDisabled(false);
+
+}
+
+
+/*
+========================================
+Telegram Theme
+========================================
+*/
+
+if(tg){
+
+    tg.onEvent(
+        "themeChanged",
+        function(){
+
+            console.log(
+                "Telegram theme changed"
+            );
+
+        }
+    );
+
 }
 
 </script>
