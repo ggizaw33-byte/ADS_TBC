@@ -1,121 +1,15 @@
-const MAX_TEXT_LENGTH = 5000;
-const TIMEOUT_MS = 12000;
-
-const safeJson = async (response) => {
-  try {
-    return await response.json();
-  } catch {
-    return null;
-  }
-};
-
-const makeAbortable = () => {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  return {
-    signal: controller.signal,
-    clear: () => clearTimeout(timer)
-  };
-};
-
-async function googleTranslate(text, source, target) {
-  const url = new URL('https://translate.googleapis.com/translate_a/single');
-  url.searchParams.set('client', 'gtx');
-  url.searchParams.set('sl', source === 'auto' ? 'auto' : source);
-  url.searchParams.set('tl', target);
-  url.searchParams.set('dt', 't');
-  url.searchParams.set('q', text);
-
-  const request = makeAbortable();
-  try {
-    const response = await fetch(url, {
-      signal: request.signal,
-      headers: { Accept: 'application/json' }
-    });
-
-    if (!response.ok) throw new Error('Google unavailable');
-
-    const data = await safeJson(response);
-    if (!Array.isArray(data?.[0])) throw new Error('No translation');
-
-    const translation = data[0]
-      .filter((part) => Array.isArray(part) && typeof part[0] === 'string')
-      .map((part) => part[0])
-      .join('');
-
-    if (!translation) throw new Error('Empty translation');
-
-    return {
-      translation,
-      detectedLanguage: data?.[2] || source,
-      provider: 'Google Translate web engine'
-    };
-  } finally {
-    request.clear();
-  }
-}
-
-async function memoryTranslate(text, source, target) {
-  const url = new URL('https://api.mymemory.translated.net/get');
-  url.searchParams.set('q', text);
-  url.searchParams.set('langpair', `${source === 'auto' ? 'en' : source}|${target}`);
-  url.searchParams.set('mt', '1');
-
-  const request = makeAbortable();
-  try {
-    const response = await fetch(url, {
-      signal: request.signal,
-      headers: { Accept: 'application/json' }
-    });
-
-    const data = await safeJson(response);
-    const translation = data?.responseData?.translatedText;
-
-    if (!translation || !response.ok || data?.responseStatus !== 200) {
-      throw new Error('Fallback unavailable');
-    }
-
-    return {
-      translation,
-      detectedLanguage: source,
-      provider: 'MyMemory fallback'
-    };
-  } finally {
-    request.clear();
-  }
-}
-
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Use POST /api/translate' });
-  }
-
-  const { text, source = 'auto', target } = req.body || {};
-
-  if (!target || typeof text !== 'string' || !text.trim()) {
-    return res.status(400).json({ error: 'text and target are required' });
-  }
-
-  if (text.length > MAX_TEXT_LENGTH) {
-    return res.status(413).json({ error: `Text is limited to ${MAX_TEXT_LENGTH} characters` });
-  }
-
-  if (source === target) {
-    return res.status(200).json({ translation: text, source, target, provider: 'same language' });
-  }
-
-  try {
-    const result = await googleTranslate(text, source, target).catch(() => memoryTranslate(text, source, target));
-    return res.status(200).json({ ...result, source, target });
-  } catch {
-    return res.status(503).json({ error: 'Translation service is temporarily unavailable. Please try again.' });
-  }
-}
+<!doctype html>
+<html lang="am">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0d1d35"><title>LingoBridge</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1d35;--card:#12294a;--field:#0d203b;--line:#31557f;--text:#edf6ff;--muted:#a6bed7;--blue:#5799ff}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text)}body{font-family:"Noto Sans Ethiopic","Plus Jakarta Sans",system-ui,sans-serif;background:radial-gradient(circle at top left,#3977d640,transparent 35%),linear-gradient(180deg,#0a162a,#0d1d35)}button,select,textarea{font:inherit}.app{width:min(100%,600px);height:100dvh;margin:auto;padding:max(10px,env(safe-area-inset-top)) 13px max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column}.top{height:42px;display:flex;justify-content:space-between;align-items:center;flex:none}.brand{display:flex;align-items:center;gap:9px;font:800 15px "Plus Jakarta Sans",sans-serif}.logo{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,#91c5ff,#2975ff);box-shadow:0 8px 23px #397dff55}.online{font-size:10px;border:1px solid #7db1ff77;border-radius:99px;padding:5px 9px;color:#dcecff}.online:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#6dffb0;margin-right:5px}.intro{padding:14px 2px 12px;flex:none}.intro small{color:#a6caff;font-size:10px;font-weight:800;letter-spacing:1px}.intro h1{font:800 clamp(24px,7vw,38px)/1.15 "Plus Jakarta Sans","Noto Sans Ethiopic",sans-serif;margin:8px 0 4px}.intro p{font-size:12px;color:var(--muted);margin:0}.card{min-height:0;flex:1;display:flex;flex-direction:column;padding:13px;background:#12294af2;border:1px solid var(--line);border-radius:23px;box-shadow:0 18px 55px #1d5cc433}.langs{display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:end;flex:none}.label{display:block;color:var(--muted);font-size:10px;font-weight:700;margin:0 4px 6px}select{width:100%;appearance:none;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:13px;padding:11px 7px;font-size:12px;outline:0}.swap{width:40px;height:40px;border-radius:50%;border:1px solid #80b8ff88;background:#1c3d68;color:#e1efff;font-size:20px}.editors{display:grid;grid-template-columns:1fr 1fr;gap:9px;min-height:0;flex:1;margin-top:12px}.editor{position:relative;display:flex;flex-direction:column;min-height:0}.editor-title{color:var(--muted);font-size:10px;font-weight:700;margin:0 4px 6px;flex:none}.count{float:right}.text{width:100%;height:100%;min-height:100px;resize:none;border:1px solid var(--line);border-radius:16px;background:#0b1b31;color:var(--text);padding:12px;outline:0;font-size:14px;line-height:1.5}.text:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px #5799ff22}.text::placeholder{color:#7f97b4}.copy{position:absolute;right:7px;top:23px;border:1px solid var(--line);border-radius:8px;background:#203e68;color:var(--text);padding:5px 9px;font-size:10px}.actions{display:flex;gap:9px;align-items:center;margin-top:11px;flex:none}.status{flex:1;color:var(--muted);font-size:11px}.translate{border:0;border-radius:12px;padding:12px 17px;color:#fff;background:linear-gradient(135deg,#80bbff,#327fff);font:800 13px "Plus Jakarta Sans",sans-serif;box-shadow:0 9px 22px #397dff55}.translate:disabled{opacity:.6}.foot{text-align:center;color:#829bbb;font-size:10px;margin-top:8px;flex:none}@media(max-width:500px){.intro p{display:none}.editors{grid-template-columns:1fr 1fr}.text{font-size:13px}}@media(max-height:620px){.intro{padding-top:6px;padding-bottom:6px}.intro h1{font-size:23px}.foot{display:none}}
+</style></head>
+<body><main class="app"><header class="top"><div class="brand"><div class="logo">文</div>LingoBridge</div><div class="online">ONLINE</div></header><section class="intro"><small>TRANSLATION MINI APP</small><h1>በማንኛውም ቋንቋ ይናገሩ።</h1><p>አማርኛ፣ Afaan Oromoo እና 100+ ቋንቋዎች።</p></section><section class="card"><div class="langs"><div><span class="label">ከ</span><select id="source"></select></div><button class="swap" id="swap">⇄</button><div><span class="label">ወደ</span><select id="target"></select></div></div><div class="editors"><div class="editor"><div class="editor-title">ጽሑፍ <span class="count" id="count">0/5000</span></div><textarea class="text" id="input" maxlength="5000" placeholder="እዚህ ይጻፉ…"></textarea></div><div class="editor"><div class="editor-title">ትርጉም</div><textarea class="text" id="result" readonly placeholder="ትርጉሙ እዚህ ይታያል…"></textarea><button class="copy" id="copy">Copy</button></div></div><div class="actions"><div class="status" id="status">ለመተርጎም ዝግጁ ነው</div><button class="translate" id="translate">ተርጉም →</button></div></section><div class="foot">LingoBridge • Telegram Mini App</div></main>
+<script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();tg.setHeaderColor?.('#0d1d35');tg.setBackgroundColor?.('#0d1d35')}
+const langs=[['auto','ራስ-ሰር መለየት'],['am','አማርኛ — Amharic'],['om','Afaan Oromoo'],['en','English'],['ar','العربية'],['fr','Français'],['es','Español'],['de','Deutsch'],['it','Italiano'],['pt','Português'],['ru','Русский'],['zh-CN','中文'],['ja','日本語'],['ko','한국어'],['hi','हिन्दी'],['sw','Kiswahili'],['so','Soomaali'],['tr','Türkçe'],['nl','Nederlands'],['ro','Română'],['uk','Українська'],['vi','Tiếng Việt'],['id','Bahasa Indonesia'],['fa','فارسی'],['ta','தமிழ்'],['te','తెలుగు'],['bn','বাংলা'],['zu','isiZulu']];
+const source=document.querySelector('#source'),target=document.querySelector('#target'),input=document.querySelector('#input'),result=document.querySelector('#result'),status=document.querySelector('#status'),go=document.querySelector('#translate');langs.forEach(([v,n])=>{source.add(new Option(n,v));target.add(new Option(n,v))});source.value='auto';target.value='am';input.oninput=()=>document.querySelector('#count').textContent=`${input.value.length}/5000`;document.querySelector('#swap').onclick=()=>{if(source.value==='auto')return;[source.value,target.value]=[target.value,source.value];[input.value,result.value]=[result.value,input.value];input.dispatchEvent(new Event('input'))};document.querySelector('#copy').onclick=async()=>{if(result.value){await navigator.clipboard.writeText(result.value);status.textContent='ተቀድቷል ✓'}};go.onclick=async()=>{const text=input.value.trim();if(!text){status.textContent='እባክዎ ጽሑፍ ያስገቡ';return}go.disabled=true;status.textContent='እየተረጎመ ነው…';try{const r=await fetch('/api/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,source:source.value,target:target.value})});const d=await r.json();if(!r.ok)throw Error(d.error||'ትርጉም አልተሳካም');result.value=d.translation;status.textContent='በትክክል ተተርጉሟል ✓'}catch(e){status.textContent=e.message}finally{go.disabled=false}};
+</script></body></html>
